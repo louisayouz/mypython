@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} Quote List {% endblock %}
+
+{% block content %}
+
+  <!-- your portfolio list  here -->
+  <div class="container mt-5">
+    <div class="d-flex justify-content-center">
+      <h2> Quote List</h2>
+    </div>
+    <div  class="center">
+    <table id = "data" class="center">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Quote Name</th>
+          <th> &nbsp;</th>
+          <th> &nbsp;</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in symbols %}
+          <tr>
+            <td>{{ entry[0]}}</td>
+            <td>{{ entry[1] }}</td>
+            <td> <a href="/quotedividents/{{ entry[1] }}"> &nbsp; To Dividends &nbsp;&nbsp;</a> </td>
+
+            <td>
+              {% if entry[2] == 'not_used' %}
+              <a href="/deletesymbol/{{ entry[1] }}"> &nbsp; Delete Quote &nbsp;&nbsp;</a>
+              {% else %}
+                 &nbsp;
+              {% endif %}
+            </td>
+            <td> <a href="/importquotedividents/{{ entry[1] }}"> &nbsp; Import Quote Dividends &nbsp;</a> </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

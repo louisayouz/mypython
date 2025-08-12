@@ -1,0 +1,106 @@
+
+{% extends "base.html" %}
+
+{% block title %} Dividends {% endblock %}
+
+{% block content %}
+<script type="text/javascript">
+
+  // Function to show and hide the popup
+  function year_info(rowid){ $("." + rowid).toggle();}
+
+  function ChangeDivPrice(id, monthId){
+    let newPrice = $('#month_div_'+ monthId).val();
+    $.ajax({
+      url: "/editquotediv/"+newPrice+"/"+id,
+      method: "GET",
+      success: function (response) {
+
+        console.log("Dividend value was updated ", response);
+        $('#sendButton'+monthId).hide();
+
+      },
+      error: function () {
+        alert("Failed to update deividend price");
+      }});
+  };
+
+  $(document).ready(function () {
+    $("input[id^='month_div_']").on("input", function () {
+      // Get the numeric suffix from input id
+      let suffix = this.id.replace('month_div_', '');
+      // Show corresponding button
+      $('#sendButton' + suffix).show();
+    });
+  });
+
+</script>
+
+{% if not single_quote %}
+<button type="submit" class="btn btn-primary w-25 mt-3" onclick="togglePopup()">Add Quote Dividend</button>
+</br></br>
+{% endif %}
+
+{% if not data %}
+<button type="submit" class="btn btn-primary w-25 mt-3" onclick="toggleDivPopup(0, 1, '{{ quote_symbol }}')">{{quote_symbol}} Add Quote Dividend</button>
+{% endif %}
+<table  class="table table-striped">
+  <tbody>
+    {% for quote, years in data.items() %}
+      <tr> <td style="color:blue"> <a href="/quotedividents/{{ quote }}">Symbol: {{ quote }}</a> </td></tr>
+      {% for year, months in years.items() %}
+        <tr><td onclick="year_info( '{{ quote }}_year_rows_{{ year }}' )">
+            <span class="year_for_quote" title="Click on Year to see the dividend per month">
+                <u><b>Year: {{ year }}</b></u>
+            </span></td>
+
+        </tr>
+
+        <tr style="display:none" class="{{ quote }}_year_rows_{{ year }}">
+          <td> Month </td><td> Dividend</td>
+        </tr>
+          {% set last_month = None %}
+          {% set id_month_div = 1 %}
+          {% for month, price in months.items() %}
+
+            {% if loop.first and (month < 12) %}
+            {% set last_month = month + 1 %}
+            {% endif %}
+
+            <tr style="display:none" class="{{ quote }}_year_rows_{{ year }}">
+              <td> {{ month }} </td>
+
+              <td> <input id = "month_div_{{month}}" value="{{ price[1] }}">
+                <button id="sendButton{{month}}" style="display: none;" onclick="ChangeDivPrice({{price[0]}}, '{{month}}')">Send</button>
+
+                {% if last_month %}
+                  <a href="#" onclick="toggleDivPopup({{ year }}, {{last_month}}, '{{ quote }}')"> Add Divident For {{ year }}</a>
+                {% endif %}
+
+                <a href="/deletediv/{{ quote }}/{{ price[0] }}"> Delete </a></td>
+
+            </tr>
+          {% set id_month_div = id_month_div + 1 %}
+          {% endfor %}
+
+    {% endfor %}
+
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<div class="content">
+  <div onclick="toggleDivPopup()" class="close-btn">
+      &times
+  </div>
+  <h3>Add Quote Dividend </h3>
+    <form method="post" action="/adddiv">
+      Enter Symbol (quote) Name: <input type="text" name="symbol" id="form_div_symbol"><br>
+      Dividend Amount: <input type="text" name="divprice"> <br>
+      Enter Year: <input type="text" name="divyear" id="form_div_year"> <br>
+      For Month: <input type="text" name="divmonth" id="form_div_month"> <br>
+      <button type="submit" class="btn btn-primary mt-3">Insert Quote Dividend</button>
+    </form>
+</div>
+{% endblock %}

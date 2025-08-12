@@ -1,0 +1,50 @@
+
+{% extends "base.html" %}
+
+{% block title %}Portfolio{% endblock %}
+
+{% block content %}
+
+  <!-- your portfolio list  here -->
+  <div class="container mt-5">
+    <div class="d-flex justify-content-center">
+      <h2>  Portfolios ({{user_name}})</h2>
+    </div>
+  <div  class="center">
+  <table id = "data" class="center">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Portfolio Name</th>
+        <th> &nbsp; </th>
+        <th> &nbsp;  </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in portfolio %}
+        <tr>
+          <td>{{ entry[0]}}</td>
+          <td>{{ entry[1] }}</td>
+          <td><a href="/quotes/{{ entry[0]}}/{{for_year}}" > To Quotes - {{for_year}} Year</a></td>
+          <td><a href="/delete_portfolio/{{ entry[0]}}" > &nbsp; Delete </a></td>
+
+        </tr>
+      {% endfor %}
+    </tbody>
+    </table>
+    <button type="submit" class="btn btn-primary w-25 mt-3" onclick="togglePopup()">Create New Portfolio</button>
+    </div>
+    <div class="content">
+      <div onclick="togglePopup()" class="close-btn">
+          &times
+      </div>
+      <h3>Add New Portfolio</h3>
+        <form method="post">
+          <label for="portfolio_name" class="form-label">Enter Portfolio Name:</label>
+          <input type="text" class="form-control" id="portfolio_name" name="portfolio_name" required>
+          <button type="submit" class="btn btn-primary w-50 mt-3">Create New Portfolio</button>
+        </form>
+    </div>
+
+  </div>
+{% endblock %}
