@@ -1,3 +1,4 @@
+import os
 import psycopg2
 from psycopg2 import sql, OperationalError, IntegrityError
 from collections import defaultdict
@@ -9,12 +10,14 @@ from flask import g
 
 def get_db_connection():
     if 'db' not in g:
-        g.db = psycopg2.connect(
-            host="localhost",
-            database="py_mydev",
-            user="louisayouz",
-            password="postgres"
-        )
+        db_url = "postgresql://louisayouz:FU6gjDVcryzO0U94arQrbUBo5eFX8iEv@dpg-d2dm843uibrs739s76g0-a.oregon-postgres.render.com/py_mydev"
+        g.db = psycopg2.connect(db_url)
+        # g.db = psycopg2.connect(
+        #     host="localhost",
+        #     database="py_mydev",
+        #     user="louisayouz",
+        #     password="postgres"
+        # )
 
     return g.db
 
@@ -29,7 +32,6 @@ def get_user_by_username(username):
     cur.execute("SELECT username, password, id FROM users WHERE username = %s", (username,))
     user = cur.fetchone()
     cur.close()
-    #conn.close()
     return user
 
 def portfolio_data(user_id):
@@ -101,7 +103,6 @@ def portfolio_quotes(portfolio_id, calc_year=None):
     modified_data = [add_div_for_row(conn, row, for_year) for row in data]
 
     cur.close()
-    #conn.close()
     return modified_data
 
 
@@ -119,7 +120,6 @@ def div_for_quote_and_year(quote_name, for_year, from_month, to_month):
     div_data = cur.fetchall()
     data = [{"month": row[0], "price": row[1]} for row in div_data]
     cur.close()
-
     return data
 
 def add_div_for_row(conn, row, for_year):
@@ -148,7 +148,6 @@ def add_div_for_row(conn, row, for_year):
 
     cur2.close()
     return row + (div_payed,)
-
 
 def add_quote(portfolio_id, symbol, price, quotes_count, from_year, from_month, to_year=None, to_month=None):
     conn = get_db_connection()
@@ -184,7 +183,6 @@ def add_quote(portfolio_id, symbol, price, quotes_count, from_year, from_month, 
       if add_full_year_dividents:
         add_full_year_div( symbol, from_year, True)
 
-      #conn.close()
     return True
 
 def delete_symbol(symbol):
@@ -241,10 +239,8 @@ def calc_current_quotes_count_by_symbol(conn, symbol, portfolio_id, quotes_count
     current_quotes_count_row = ex_cur.fetchone()
     ex_cur.close()
 
-    if current_quotes_count_row is None:
-        current_quotes_count = 0
-    else:
-        current_quotes_count = current_quotes_count_row[0]
+    row = current_quotes_count_row or [0]
+    current_quotes_count = int(row[0])
 
     return calc_current_quotes_count(quotes_count, current_quotes_count)
 
@@ -264,11 +260,6 @@ def calc_current_quotes_count_with_quote_id(conn, quote_id, portfolio_id, quotes
 
     row = current_quotes_count_row or [0]
     current_quotes_count = int(row[0])
-
-    # if current_quotes_count_row is None:
-    #     current_quotes_count = 0
-    # else:
-    #     current_quotes_count = int(current_quotes_count_row[0])
 
     return calc_current_quotes_count(quotes_count, current_quotes_count)
 
@@ -412,7 +403,7 @@ def data_convert(rows):
 
     #convert to the json array
     json_ready = {q: {y: dict(m) for y, m in years.items()} for q, years in data.items()}
-    print(json_ready)
+    #print(json_ready)
     return json_ready
 
 def all_symbols():
@@ -427,11 +418,9 @@ def all_symbols():
     data = cur.fetchall()
     cur.close()
 
-
-
     new_data = [
     (number, name, 'used') if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
-    for  number, name in data
+     for  number, name in data
     ]
 
     print(new_data)
