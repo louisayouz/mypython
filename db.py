@@ -10,16 +10,8 @@ from flask import g
 
 def get_db_connection():
     if 'db' not in g:
-        #db_url = "postgresql://louisayouz:FU6gjDVcryzO0U94arQrbUBo5eFX8iEv@dpg-d2dm843uibrs739s76g0-a.oregon-postgres.render.com/py_mydev"
         db_url = os.environ.get("DATABASE_URL")
         g.db = psycopg2.connect(db_url)
-
-        # g.db = psycopg2.connect(
-        #     host="localhost",
-        #     database="py_mydev",
-        #     user="louisayouz",
-        #     password="postgres"
-        # )
 
     return g.db
 
@@ -266,11 +258,8 @@ def calc_current_quotes_count_with_quote_id(conn, quote_id, portfolio_id, quotes
     return calc_current_quotes_count(quotes_count, current_quotes_count)
 
 def calc_current_quotes_count(quotes_count, current_quotes_count=0):
-
-    #print("calc_current_quotes_count", quotes_count, current_quotes_count)
-
     if  (current_quotes_count == 0):  return quotes_count
-    #print(quotes_count, current_quotes_count)
+
     return int(current_quotes_count) + int(quotes_count)
 
 def delete_protfolio_quote(portfolio_id, quote_id):
@@ -425,7 +414,7 @@ def all_symbols():
      for  number, name in data
     ]
 
-    print(new_data)
+    #print(new_data)
     return new_data
 
 

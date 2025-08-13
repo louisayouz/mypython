@@ -53,3 +53,47 @@ CREATE TABLE quotes (
     updated_at timestamp without time zone,
 	CONSTRAINT quote_names UNIQUE (quote_name)
 );
+
+CREATE SEQUENCE portfolio_quotes_id_seq;
+CREATE TABLE IF NOT EXISTS public.portfolio_quotes
+(
+    id integer NOT NULL DEFAULT nextval('portfolio_quotes_id_seq'::regclass),
+    portfolio_id integer NOT NULL,
+    quote_name character varying(32) COLLATE pg_catalog."default",
+    buy_price numeric(8,3),
+    buy_count integer,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    from_year integer,
+    from_month smallint,
+    to_year integer,
+    to_month smallint,
+    current_quotes_count integer,
+    CONSTRAINT portfolio_quotes_pkey PRIMARY KEY (id),
+    CONSTRAINT portfolio_quotes_from_year_check CHECK (from_year >= 2010 AND from_year <= 2100),
+    CONSTRAINT portfolio_quotes_from_month_check CHECK (from_month >= 1 AND from_month <= 12),
+    CONSTRAINT portfolio_quotes_to_year_check CHECK (to_year >= 2010 AND to_year <= 2100),
+    CONSTRAINT portfolio_quotes_to_month_check CHECK (to_month >= 1 AND to_month <= 12)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.portfolio_quotes
+    OWNER to louisayouz;
+-- Index: index_portfolio_id
+
+-- DROP INDEX IF EXISTS public.index_portfolio_id;
+
+CREATE INDEX IF NOT EXISTS index_portfolio_id
+    ON public.portfolio_quotes USING btree
+    (portfolio_id ASC NULLS LAST)
+    TABLESPACE pg_default;
+-- Index: index_portfolio_quotes_on_portfolio_id_quote_name
+
+-- DROP INDEX IF EXISTS public.index_portfolio_quotes_on_portfolio_id_quote_name;
+
+CREATE UNIQUE INDEX IF NOT EXISTS index_portfolio_quotes_on_portfolio_id_quote_name
+    ON public.portfolio_quotes USING btree
+    (portfolio_id ASC NULLS LAST, quote_name COLLATE pg_catalog."default" ASC NULLS LAST, from_year ASC NULLS LAST, from_month ASC NULLS LAST)
+    TABLESPACE pg_default
+    WHERE from_year IS NOT NULL AND from_month IS NOT NULL;
