@@ -24,7 +24,6 @@ def symbols_as_array(data):
          continue
       else:
          symbols.append(row[1])
-
    return symbols
 
 ## 0HAKSH241QPKW7EK https://www.alphavantage.co/support/#api-key

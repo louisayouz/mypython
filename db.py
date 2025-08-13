@@ -94,11 +94,24 @@ def portfolio_quotes(portfolio_id, calc_year=None):
     cur.execute(stmt,(for_year, portfolio_id, for_year, for_year) )
 
     data = cur.fetchall()
-    modified_data = [add_div_for_row(conn, row, for_year) for row in data]
-
     cur.close()
-    return modified_data
+    modified_data = [add_div_for_row(conn, row, for_year) for row in data]
+    #add_allowed
+    return sign_first_quote_same_quote_add(modified_data)
 
+def sign_first_quote_same_quote_add(data):
+    modified_data = []
+    last_name = ''
+    for row in data:
+        cur_name = row[1]
+        val = ''
+        if (cur_name != last_name) and (row[7] != 12):
+            val = 'add'
+
+        last_name = cur_name
+        modified_data.append(row+(val,))
+
+    return modified_data
 
 def div_for_quote_and_year(quote_name, for_year, from_month, to_month):
 
@@ -413,8 +426,6 @@ def all_symbols():
     (number, name, 'used') if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
      for  number, name in data
     ]
-
-    #print(new_data)
     return new_data
 
 

@@ -78,7 +78,7 @@ def quotes(portfolioid, calcyear=None):
     else:
         for_year = calcyear
 
-
+    print(data)
     err = request.args.get('err') or ''
     return render_template('quotes.html', quotes=data, symbols = symbols_as_array(data), user_name=session['username'], portfolioid=portfolioid, for_year=for_year, err=err)
 
