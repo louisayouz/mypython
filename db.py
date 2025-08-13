@@ -10,8 +10,10 @@ from flask import g
 
 def get_db_connection():
     if 'db' not in g:
-        db_url = "postgresql://louisayouz:FU6gjDVcryzO0U94arQrbUBo5eFX8iEv@dpg-d2dm843uibrs739s76g0-a.oregon-postgres.render.com/py_mydev"
+        #db_url = "postgresql://louisayouz:FU6gjDVcryzO0U94arQrbUBo5eFX8iEv@dpg-d2dm843uibrs739s76g0-a.oregon-postgres.render.com/py_mydev"
+        db_url = os.environ.get("DATABASE_URL")
         g.db = psycopg2.connect(db_url)
+
         # g.db = psycopg2.connect(
         #     host="localhost",
         #     database="py_mydev",
