@@ -5,10 +5,12 @@ from db import all_symbols, add_full_year_div, edit_div, delete_symbol
 from db import close_db
 from helpers.utils import validate_int, validate_string, validate_numeric, symbols_as_array
 from import_div import import_quote
-from datetime import datetime
+from datetime import datetime, timedelta
+
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
+app.permanent_session_lifetime = timedelta(minutes=10)
 
 
 @app.teardown_appcontext
@@ -17,6 +19,7 @@ def teardown_db(exception):
 
 @app.before_request
 def require_login():
+    session.permanent = True
     # Skip login check for login page and static files
     if 'username' not in session and request.endpoint not in ['login', 'static']:
         return redirect(url_for('login'))

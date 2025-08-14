@@ -13,6 +13,28 @@
     <link href="{{url_for('static', filename='style.css')}}" rel="stylesheet">
 
     <script type="text/javascript">
+      let inactivityTime = function () {
+
+        let time;
+
+        window.onload = resetTimer;
+        document.onmousemove = resetTimer;
+        document.onkeypress = resetTimer;
+        document.onscroll = resetTimer;
+        document.onclick = resetTimer;
+
+        function logout() {
+            window.location.href = "/logout";
+        }
+
+        function resetTimer() {
+            clearTimeout(time);
+            time = setTimeout(logout, 1 * 60 * 1000); // 10 minutes
+            console.log('inactivityTime '+time);
+        }
+      };
+
+      inactivityTime();
       // Function to show and hide the popup for class "content"
       function togglePopup() {
           $(".content").toggle();
@@ -45,14 +67,9 @@
       function clear_err_msg(){
         $("#errmsg").html('');
       }
-      function isEmpty(){
-
-      }
 
       function isNumericWithDot(event, withDot = false) {
         const charCode = event.charCode || event.keyCode;
-
-
 
         if ((charCode >= 48 && charCode <= 57) || charCode === 46) {
           if (charCode === 46 && event.target.value.includes('.')) {
