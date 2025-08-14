@@ -16,14 +16,29 @@
         <input type="text" class="form-control" id="username" name="username" required>
       </div>
 
-      <div class="mb-3">
+      <div class="mb-3 password-container">
         <label for="password" class="form-label">Password:</label>
-        <input type="password" class="form-control" id="password" name="password" required>
+        <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+        <input type="password" class="form-control" id="password" name="password" required placeholder="Enter password">
       </div>
-
+    </br>
       <button type="submit" class="btn btn-primary w-25 mt-3">Log In</button>
     </form>
 
   </div>
 
+  <script>
+    document.getElementById("togglePassword").addEventListener("click", function () {
+        const pwdField = document.getElementById("password");
+        if (pwdField.type === "password") {
+            pwdField.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
+        } else {
+            pwdField.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
+        }
+    });
+    </script>
 {% endblock %}
