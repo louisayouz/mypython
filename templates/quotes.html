@@ -34,38 +34,55 @@
     $(".content_edit").toggle();
   }
 
-  function AddNewQuoteCount(rowid) {
+  function AddNewQuoteCount(rowid=0) {
+    let tooltip = $('#tooltip_add');
+    if (rowid == 0 ) {
+      tooltip.text("");
+      tooltip.attr("style", "display:none");
+      $(".content_add_block").attr("style", "display:none");
+      $(".content_add").toggle();
+      return;
+    }
 
     tds = $("#rowid-"+rowid).find('td')
+    tomonthObj = $("#rowid-"+rowid).find('.to_month');
 
-    tds.each(function(idx, item){
-      cls = $(item).attr('class');
-      switch (cls){
-        case 'quoteid':
-          quoteid = $(item).html(); $('#add_quoteid').val($(item).html()); console.log(quoteid); break;
-        case 'symbol':
-          $('#add_symbol').html($(item).html());
-          $('#addsymbol').val($(item).html()); console.log($(item).html()); break;
-        case 'price':
-          price = $(item).html();  $('add_price').val($(item).html()); console.log(price); break;
-        case 'quantity':
-          quantity = $(item).html(); $('#add_quantity').val($(item).html()); console.log(quantity); break;
-        case 'from_month_xx':
+    if ($(tomonthObj).html().trim().length == 0){
+      tooltip.text("Set 'To month' value and click on 'Add' again.");
+      tooltip.attr("style", "display:inline-block");
+      $(".content_add_block").attr("style", "display:none");
+    }
+    else {
 
-          var tomonth_obj = $("#rowid-"+rowid).find('.to_month');
-          tomonth = parseInt($(tomonth_obj).html()) +1;
-          from_month = tomonth; $('#add_from_month').val(tomonth); console.log(tomonth); break;
-        case 'from_month':
-          var from_month = parseInt($(item).html()) +1;
-          $('#add_from_month').val(from_month); console.log(from_month); break;
+      tooltip.text("");
+      tooltip.attr("style", "display:none");
 
-        case 'to_month':
-          var from_month_obj = $("#rowid-"+rowid).find('.from_month');
-          var to_month = parseInt($(from_month_obj).html()) +1;
-          $('#add_to_month').val(to_month); console.log(to_month); break;
-      }
-    });
-    $(".content_add").toggle();
+      $(".content_add_block").attr("style", "display:block");
+
+      tds.each(function(idx, item){
+        cls = $(item).attr('class');
+        switch (cls){
+          case 'quoteid':
+            quoteid = $(item).html(); $('#add_quoteid').val($(item).html()); console.log(quoteid); break;
+          case 'symbol':
+            $('#add_symbol').html($(item).html());
+            $('#addsymbol').val($(item).html()); console.log($(item).html()); break;
+          case 'price':
+            price = $(item).html();  $('add_price').val($(item).html()); console.log(price); break;
+          case 'quantity':
+            quantity = $(item).html(); $('#add_quantity').val($(item).html()); console.log(quantity); break;
+          case 'from_month':
+            var from_month = parseInt($(item).html()) +1;
+            $('#add_from_month').val(from_month); console.log(from_month); break;
+
+          case 'to_month':
+            var from_month_obj = $("#rowid-"+rowid).find('.from_month');
+            var to_month = parseInt($(from_month_obj).html()) +1;
+            $('#add_to_month').val(to_month); console.log(to_month); break;
+        }
+      });
+    }
+      $(".content_add").toggle();
     }
 
     function ShowDividends(quote='', foryear=0, frommonth=0, tomonth=0){
@@ -120,25 +137,28 @@
   $(document).ready(function(){
 
     $('#symbolInPortfolio').on('blur', function (){
+
       let value = $(this).val().trim();
       let tooltip = $('#tooltip');
+
       tooltip.text("");
       tooltip.attr("style", "display:none");
 
       if (value === "" ) {
         $('#symbol_buy_info').attr('style','display:none');
-        tooltip.text("Enter quote symbol.");
+        tooltip.text("Enter Quote symbol.");
         tooltip.attr("style", "display:inline-block");
       }
       else
-        if ({{ symbols | tojson }}.includes(value.toUpperCase())){
-            $('#togglePopup #symbolInPortfolio').focus();
-              tooltip.text("Symbol already exists in prorfolio.");
-              tooltip.attr("style", "display:inline-block");
-            }else{
-            $('#symbol_buy_info').attr('style','display:block');
-               console.log("Symbol is valid:", value);
-            }
+        if ({{ symbols | tojson }}.includes(value.toUpperCase()))
+        {
+          $('#togglePopup #symbolInPortfolio').focus();
+          tooltip.text("Symbol already exists in prorfolio. Please click on 'Add' link  on row with same Quote.");
+          tooltip.attr("style", "display:inline-block");
+        } else {
+              $('#symbol_buy_info').attr('style','display:block');
+              console.log("Symbol is valid:", value);
+        }
       event.preventDefault();
     });
   });  //document ready
@@ -204,7 +224,7 @@
 
     <strong><i>Cost: {{ ns.total }} </i></strong>
     {% set nns.realdiv = nns.divtotal - (nns.divtotal * 25)/ 100 %}
-    <strong><i>Year Dividends Payed: </i> {{ nns.divtotal }} <i>({{ nns.realdiv}})</i></strong>
+    <strong><i>Year Dividends Payed: </i> {{ nns.divtotal }} <i>(after taxes:{{ nns.realdiv}})</i></strong>
     <span id="errmsg"> {{ err }}</span>
     </br>
     <button type="submit" class="btn btn-primary w-25 mt-3" onclick="togglePopup()">Add New Quote</button>
@@ -258,26 +278,31 @@
     </div>
 
     <div class="content_add">
-      <div onclick="AddNewQuoteCount()" class="close-btn">
+      <div onclick="AddNewQuoteCount(0)" class="close-btn">
           &times
       </div>
       <h5>Add Quote Info</h5>
-        <form method="post" action="/addquote">
-          <input type="hidden" name="portfolioid" value="{{ portfolioid }}">
-          <input type="hidden" name="symbol" id="addsymbol" >
-          <input type="text" name="from_year" value="{{ for_year}}" hidden >
-          <input type="text" name="to_year" value="{{ for_year}}" hidden >
 
-          Symbol (quote) Name: <span id='add_symbol'></span> <br>
-          Buy Price: <input id='add_price' type="text" name="price" class="form_input_field">
-          Quantity: <input  id='add_quantity'type="text" name="quantity" class="form_input_field"> <br>
-          From Year:<span> <b>{{ for_year}} </b></span>
-          From Month:<input type="text" name="from_month" id="add_from_month" class="form_input_field" maxlength="2"><br>
-          To Year: <span><b>{{ for_year}}</b></span>
-          To Month: <input type="text" name="to_month" id="add_to_month" class="form_input_field" maxlength="2"><br>
+          <form method="post" action="/addquote">
+            <input type="hidden" name="portfolioid" value="{{ portfolioid }}">
+            <input type="hidden" name="symbol" id="addsymbol" >
+            <input type="text" name="from_year" value="{{ for_year}}" hidden >
+            <input type="text" name="to_year" value="{{ for_year}}" hidden >
 
-          <button type="submit" class="btn btn-primary mt-3">Add Quote</button>
-        </form>
+            <span  id="tooltip_add" class="tooltip-message" style="display:none;"></span>
+            <div class="content_add_block">
+              Symbol (quote) Name: <span id='add_symbol'></span> <br>
+              Buy Price: <input id='add_price' type="text" name="price" class="form_input_field">
+              Quantity: <input  id='add_quantity'type="text" name="quantity" class="form_input_field"> <br>
+              From Year:<span> <b>{{ for_year}} </b></span>
+              From Month:<input type="text" name="from_month" id="add_from_month" class="form_input_field" maxlength="2"><br>
+              To Year: <span><b>{{ for_year}}</b></span>
+              To Month: <input type="text" name="to_month" id="add_to_month" class="form_input_field" maxlength="2"><br>
+
+              <button type="submit" class="btn btn-primary mt-3">Add Quote</button>
+            </div>
+          </form>
+
     </div>
 
 
