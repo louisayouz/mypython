@@ -72,12 +72,12 @@
           case 'quantity':
             quantity = $(item).html(); $('#add_quantity').val($(item).html()); console.log(quantity); break;
           case 'from_month':
-            var from_month = parseInt($(item).html()) +1;
+            var to_month_obj = $("#rowid-"+rowid).find('.to_month');
+            var from_month = parseInt($(to_month_obj).html()) +1;
             $('#add_from_month').val(from_month); console.log(from_month); break;
 
           case 'to_month':
-            var from_month_obj = $("#rowid-"+rowid).find('.from_month');
-            var to_month = parseInt($(from_month_obj).html()) +1;
+            var to_month = 12;
             $('#add_to_month').val(to_month); console.log(to_month); break;
         }
       });
