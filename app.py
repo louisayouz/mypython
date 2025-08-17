@@ -6,10 +6,11 @@ from db import close_db
 from helpers.utils import validate_int, validate_string, validate_numeric, symbols_as_array
 from import_div import import_quote
 from datetime import datetime, timedelta
-
+import os
+import bcrypt
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv("SECRET_KEY")
 app.permanent_session_lifetime = timedelta(minutes=10)
 
 
@@ -37,7 +38,17 @@ def login():
         password = request.form['password']
 
         user = get_user_by_username(username)
-        if user and user[1] == password:
+
+        result = False
+        if user is None:
+            return "Invalid credentials!"
+
+        if user[3] is None:
+            result = user[1] == password
+        else:
+            result = bcrypt.checkpw(password.encode("utf-8"), user[3].tobytes())
+
+        if result:
             session['username'] = username
             session['user_id'] = user[2]
             return redirect(url_for('dashboard'))

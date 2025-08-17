@@ -1,4 +1,5 @@
 import os
+import bcrypt
 import psycopg2
 from psycopg2 import sql, OperationalError, IntegrityError
 from collections import defaultdict
@@ -23,10 +24,23 @@ def close_db(e=None):
 def get_user_by_username(username):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("SELECT username, password, id FROM users WHERE username = %s", (username,))
+    cur.execute("SELECT username, password, id, password_hash FROM users WHERE username = %s", (username,))
     user = cur.fetchone()
     cur.close()
     return user
+
+#insert secure user password
+def save_new_user(username, userpass):
+    if not is_valid_string(username) or not is_valid_string(userpass):
+        return False
+
+    pass_hash = bcrypt.hashpw(userpass.encode("utf-8"), bcrypt.gensalt())
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO users (username, password, password_hash) VALUES(%s, %s, %s)", (username, userpass, pass_hash))
+    conn.commit()
+    cur.close()
+    return True
 
 def portfolio_data(user_id):
     conn = get_db_connection()

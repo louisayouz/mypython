@@ -9,6 +9,7 @@ CREATE SEQUENCE portfolios_id_seq;
 	CONSTRAINT portfolios_name_key UNIQUE (portfolio_name)
 
 );
+
 CREATE SEQUENCE portfolios_id_seq;
 CREATE TABLE portfolio_quotes (
     id integer NOT NULL DEFAULT nextval('portfolio_quotes_id_seq'::regclass),
@@ -97,3 +98,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS index_portfolio_quotes_on_portfolio_id_quote_n
     (portfolio_id ASC NULLS LAST, quote_name COLLATE pg_catalog."default" ASC NULLS LAST, from_year ASC NULLS LAST, from_month ASC NULLS LAST)
     TABLESPACE pg_default
     WHERE from_year IS NOT NULL AND from_month IS NOT NULL;
+
+
+CREATE SEQUENCE users_id_seq;
+CREATE TABLE IF NOT EXISTS public.users
+(
+    id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+    username text COLLATE pg_catalog."default" NOT NULL,
+    password text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT users_pkey PRIMARY KEY (id),
+    CONSTRAINT users_username_key UNIQUE (username)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.users OWNER to louisayouz;
+
+
+ALTER TABLE users ADD COLUMN password_hash BYTEA;
