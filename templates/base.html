@@ -27,7 +27,7 @@
             window.location.href = "/logout";
         }
 
-        function resetTimer() {
+        function resetTimer(){
             clearTimeout(time);
             time = setTimeout(logout, 10 * 60 * 1000); // 10 minutes
             console.log('inactivityTime '+time);
