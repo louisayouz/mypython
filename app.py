@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect,session,jso
 from db import get_user_by_username, portfolio_data, create_portfolio, delete_portfolio, portfolio_quotes
 from db import add_quote, delete_protfolio_quote, edit_quote, all_dividents, add_div, delete_div, div_for_quote_and_year
 from db import all_symbols, add_full_year_div, edit_div, delete_symbol
-from db import close_db
+from db import close_db, refresh_quotes
 from helpers.utils import validate_int, validate_string, validate_numeric, symbols_as_array
 from import_div import import_quote
 from datetime import datetime, timedelta
@@ -92,7 +92,7 @@ def quotes(portfolioid, calcyear=None):
     else:
         for_year = calcyear
 
-    print(data)
+    #print(data)
     err = request.args.get('err') or ''
     return render_template('quotes.html', quotes=data, symbols = symbols_as_array(data), user_name=session['username'], portfolioid=portfolioid, for_year=for_year, err=err)
 
@@ -221,6 +221,12 @@ def deletesymbol(symbol):
     delete_symbol(symbol)
     return render_template('symbols.html', symbols=all_symbols())
    # return redirect(url_for('quotes', portfolioid=portfolioid))
+
+@app.route('/refresh_stocks', methods=['POST'] )
+def refresh_stocks():
+    #refresh_quotes()
+    return 'successfully'
+    #return render_template('symbols.html', symbols=all_symbols())
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,6 +2,7 @@ import os
 import bcrypt
 import psycopg2
 from psycopg2 import sql, OperationalError, IntegrityError
+from helpers.utils import get_stock_info, nearest_weekday
 from collections import defaultdict
 from decimal import Decimal
 from datetime import datetime
@@ -99,21 +100,22 @@ def portfolio_quotes(portfolio_id, calc_year=None):
     WHERE pay_year = %s
 	GROUP by quote_name
 	) qq
-
     ON qq.quote_name = portfolio_quotes.quote_name
     WHERE portfolio_id=%s AND from_year<=%s AND ( to_year IS NULL OR to_year=%s)
     ORDER BY portfolio_quotes.quote_name, id DESC
     """
     #print(stmt)
     cur.execute(stmt,(for_year, portfolio_id, for_year, for_year) )
-
     data = cur.fetchall()
     cur.close()
-    modified_data = [add_div_for_row(conn, row, for_year) for row in data]
+    modified_data = [add_div_for_row(row, for_year) for row in data]
     #add_allowed
+
     return sign_first_quote_same_quote_add(modified_data)
 
 def sign_first_quote_same_quote_add(data):
+    last_prices = get_last_prices()
+    #print(last_prices)
     modified_data = []
     last_name = ''
     for row in data:
@@ -122,8 +124,11 @@ def sign_first_quote_same_quote_add(data):
         if (cur_name != last_name) and (row[7] != 12):
             val = 'add'
 
+        last_price = last_prices[cur_name][0] #22.11
+        last_date =  last_prices[cur_name][1] #'2025-08-21'
+
         last_name = cur_name
-        modified_data.append(row+(val,))
+        modified_data.append(row+(val, last_price, last_date ))
 
     return modified_data
 
@@ -143,7 +148,8 @@ def div_for_quote_and_year(quote_name, for_year, from_month, to_month):
     cur.close()
     return data
 
-def add_div_for_row(conn, row, for_year):
+def add_div_for_row(row, for_year):
+
     from_month = row[6]
     if row[7]:
        to_month = row[7]
@@ -156,7 +162,7 @@ def add_div_for_row(conn, row, for_year):
     AND pay_month <= %s AND pay_month >= %s
     """
     #print("divs:" + stmt + row[1], for_year , to_month, row[6] )
-
+    conn = get_db_connection()
     cur2 = conn.cursor()
     cur2.execute(stmt,(row[1], for_year, to_month, row[6]) )
     quantity = row[8] #current for dividend quotes amount
@@ -429,7 +435,16 @@ def all_symbols():
     cur = conn.cursor()
 
     stmt = """
-        SELECT id, quote_name FROM quotes ORDER BY id DESC
+       SELECT Q.id, Q.quote_name, close_price, last_date_at
+        FROM quotes Q
+        LEFT JOIN LATERAL(
+            SELECT QP.*
+            FROM  quotes_price QP
+            WHERE Q.quote_name=QP.quote_name
+            ORDER BY QP.quote_name, QP.last_date_at DESC
+            LIMIT 1
+
+        )QP on TRUE
     """
 
     cur.execute(stmt)
@@ -437,9 +452,86 @@ def all_symbols():
     cur.close()
 
     new_data = [
-    (number, name, 'used') if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
-     for  number, name in data
+    (number, name, 'used', close_price, last_date_at) if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
+     for  number, name, close_price, last_date_at in data
     ]
     return new_data
+
+def refresh_quotes():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    stmt = """
+        SELECT DISTINCT quote_name FROM quotes GROUP BY quote_name
+    """
+
+    cur.execute(stmt)
+    quotes = cur.fetchall()
+    cur.close()
+    for_day = nearest_weekday()
+
+    data = []
+    for row in quotes:
+        close_val = get_stock_info(row[0], for_day)
+        data.append([row[0],close_val])
+
+    update_quote_prices(data, for_day)
+    return all_symbols()
+
+def update_quote_prices(data, for_day):
+
+    #data=[{'NAV': 0.0}, {'BAC': 49.48}, {'XYLD': 38.87}, {'QYLD': 16.65}, {'GOF': 14.85}, {'IAF': 4.64}, {'AZN': 80.97}, {'APLE': 12.87}, {'AAPL': 227.76}, {'QQQ': 571.97}, {'BGY': 5.78}]
+    print(data)
+
+    values = ", ".join(
+        "(" + ", ".join(
+            repr(x) if isinstance(x, str) else str(x)
+            for x in row
+        ) + f", '{for_day}', NOW(), NOW())"
+        for row in data
+    )
+
+    print(values)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    stmt = f"""
+    INSERT INTO quotes_price (quote_name, close_price, last_date_at, created_at, updated_at)
+    VALUES {values}
+    ON CONFLICT (quote_name, last_date_at) DO UPDATE
+    SET close_price = EXCLUDED.close_price,
+        quote_name = EXCLUDED.quote_name,
+        updated_at = EXCLUDED.updated_at;
+    """
+
+    try:
+      cur.execute(stmt)
+      conn.commit()
+    except psycopg2.Error as e:
+        print("SQL error:", e)
+    finally:
+      cur.close()
+
+def get_last_prices():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    stmt = f"""
+       SELECT Q.quote_name, close_price, last_date_at
+        FROM quotes Q
+        LEFT JOIN LATERAL(
+            SELECT QP.*
+            FROM  quotes_price QP
+            WHERE Q.quote_name=QP.quote_name
+            ORDER BY QP.quote_name, QP.last_date_at DESC
+            LIMIT 1
+        )QP on TRUE
+    """
+    cur.execute(stmt)
+    quote_prices = cur.fetchall()
+    cur.close()
+    rebuilt_quotes_prices = {}
+    if quote_prices:
+       # rebuilt_quotes_prices =  {{row[0]: (float(row[1]), row[2].strftime("%Y-%m-%d"))} for row in quote_prices }
+        rebuilt_quotes_prices =  {row[0]: (float(row[1]), row[2].strftime("%Y-%m-%d")) for row in quote_prices}
+
+    return rebuilt_quotes_prices
 
 

@@ -1,3 +1,15 @@
+
+CREATE DATABASE py_mydev
+    WITH
+    OWNER = louisayouz
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'C'
+    LC_CTYPE = 'C'
+    LOCALE_PROVIDER = 'libc'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+
 CREATE SEQUENCE portfolios_id_seq;
  CREATE TABLE IF NOT EXISTS portfolios (
     id integer NOT NULL DEFAULT nextval('portfolios_id_seq'::regclass),
@@ -113,6 +125,22 @@ CREATE TABLE IF NOT EXISTS public.users
 TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.users OWNER to louisayouz;
-
-
 ALTER TABLE users ADD COLUMN password_hash BYTEA;
+
+
+CREATE TABLE IF NOT EXISTS public.quotes_price
+(
+    id integer NOT NULL DEFAULT nextval('quote_price_id_seq'::regclass),
+    quote_name character varying(32) COLLATE pg_catalog."default" NOT NULL,
+    close_price numeric(8,3) NOT NULL ,
+    last_date_at timestamp without time zone,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+)
+
+CREATE UNIQUE INDEX IF NOT EXISTS quotes_price_last
+    ON public.quotes_price USING btree
+    (quote_name COLLATE pg_catalog."default" ASC NULLS LAST,
+     last_date_at DESC NULLS LAST)
+    TABLESPACE pg_default;
+

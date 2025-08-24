@@ -3,20 +3,36 @@
 {% block title %} Quote List {% endblock %}
 
 {% block content %}
-
+<script>
+  function refreshQuotes(){
+    $.ajax({
+      url: "/refresh_stocks",
+      method: "POST",
+      success: function (response) {
+        console.log("refrefreshed", response);
+        window.location.href = "/symbols";
+      },
+      error: function () {
+        console.log("Failed to refresh prices");
+      }});
+  };
+</script>
   <!-- your portfolio list  here -->
   <div class="container mt-5">
     <div class="d-flex justify-content-center">
       <h2> Quote List</h2>
     </div>
+
     <div  class="center">
     <table id = "data" class="center">
       <thead>
         <tr>
           <th>Id</th>
-          <th>Quote Name</th>
-          <th> &nbsp;</th>
-          <th> &nbsp;</th>
+          <th>&nbsp;Quote Name&nbsp; </th>
+          <th>&nbsp;Quote Price&nbsp; </th>
+          <th>&nbsp;For Date&nbsp; </th>
+          <th>&nbsp;</th>
+          <th>&nbsp;</th>
 
         </tr>
       </thead>
@@ -25,6 +41,8 @@
           <tr>
             <td>{{ entry[0]}}</td>
             <td>{{ entry[1] }}</td>
+            <td>{{entry[3]}}</td>
+            <td>{{entry[4]}}</td>
             <td> <a href="/quotedividents/{{ entry[1] }}"> &nbsp; To Dividends &nbsp;&nbsp;</a> </td>
 
             <td>
@@ -34,11 +52,13 @@
                  &nbsp;
               {% endif %}
             </td>
+
             <td> <a href="/importquotedividents/{{ entry[1] }}"> &nbsp; Import Quote Dividends &nbsp;</a> </td>
         </tr>
         {% endfor %}
       </tbody>
       </table>
+      <button onclick ="refreshQuotes();" class="btn btn-primary w-30 mt-3">Refresh quote prices</button>
     </div>
   </div>
 {% endblock %}

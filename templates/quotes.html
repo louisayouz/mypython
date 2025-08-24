@@ -136,6 +136,13 @@
 
   $(document).ready(function(){
 
+    // $('.price').on('mousemove', function (){
+    //   let val1 = $(this).attr('close');
+    //   let val2 = $(this).attr('at');
+    //   console.log('mousemove'+val1+'('+ val2+')');
+
+    // });
+
     $('#symbolInPortfolio').on('blur', function (){
 
       let value = $(this).val().trim();
@@ -175,7 +182,7 @@
         <tr>
           <th> Id</th>
           <th> Symbol</th>
-          <th> Buying Price </th>
+          <th> Buying Price</br><i>Closed Price</i> </th>
           <th> Buying Qty </th>
           <th> Current  Qty</th>
           <th> Cost </th>
@@ -190,7 +197,7 @@
           <tr id="rowid-{{ entry[0]}}" >
             <td class="quoteid">{{ entry[0]}}</td>
             <td class="symbol">{{ entry[1] }}</td>
-            <td class="price">{{ entry[2] }}</td>
+            <td class="price" title={{entry[11]}}({{entry[12]}}})> {{ entry[2] }} </td>
             <td class="quantity">{{ entry[3]}}</td>
             <td class="ss"> ( {{entry[8]}}) </td>
             <td class="ss">{{ entry[4] }} {{total}}</td>
@@ -224,7 +231,7 @@
 
     <strong><i>Cost: {{ ns.total }} </i></strong>
     {% set nns.realdiv = nns.divtotal - (nns.divtotal * 25)/ 100 %}
-    <strong><i>Year Dividends Payed: </i> {{ nns.divtotal }} <i>(after taxes:{{ nns.realdiv}})</i></strong>
+    &nbsp; <strong><i>Year Dividends Payed: </i> {{ nns.divtotal }} </strong> <i>(after taxes (25%) : {{ nns.realdiv}})</i>
     <span id="errmsg"> {{ err }}</span>
     </br>
     <button type="submit" class="btn btn-primary w-25 mt-3" onclick="togglePopup()">Add New Quote</button>
