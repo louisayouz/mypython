@@ -226,7 +226,6 @@ def deletesymbol(symbol):
 def refresh_stocks():
     refresh_quotes()
     return 'successfully'
-    #return render_template('symbols.html', symbols=all_symbols())
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -124,8 +124,12 @@ def sign_first_quote_same_quote_add(data):
         if (cur_name != last_name) and (row[7] != 12):
             val = 'add'
 
-        last_price = last_prices[cur_name][0] #22.11
-        last_date =  last_prices[cur_name][1] #'2025-08-21'
+        if last_prices:
+            last_price = last_prices[cur_name][0]  #22.11
+            last_date =  last_prices[cur_name][1]  #'2025-08-21'
+        else:
+            last_price = 0.00
+            last_date = ''
 
         last_name = cur_name
         modified_data.append(row+(val, last_price, last_date ))
@@ -528,9 +532,15 @@ def get_last_prices():
     quote_prices = cur.fetchall()
     cur.close()
     rebuilt_quotes_prices = {}
-    if quote_prices:
-       rebuilt_quotes_prices =  {row[0]: (float(row[1]), row[2].strftime("%Y-%m-%d")) for row in quote_prices}
 
+    if quote_prices:
+       rebuilt_quotes_prices = {
+            row[0]: (
+                float(row[1]) if row[1] is not None else 0.00,
+                row[2].strftime("%Y-%m-%d") if row[2] is not None else ""
+            )
+            for row in quote_prices
+        }
     return rebuilt_quotes_prices
 
 
