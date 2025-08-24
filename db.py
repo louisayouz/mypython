@@ -529,7 +529,7 @@ def get_last_prices():
     cur.close()
     rebuilt_quotes_prices = {}
     if quote_prices:
-        rebuilt_quotes_prices =  {row[0]: (float(row[1]), row[2].strftime("%Y-%m-%d")) for row in quote_prices}
+       rebuilt_quotes_prices =  {row[0]: (float(row[1]), row[2].strftime("%Y-%m-%d")) for row in quote_prices}
 
     return rebuilt_quotes_prices
 

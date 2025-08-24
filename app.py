@@ -224,7 +224,7 @@ def deletesymbol(symbol):
 
 @app.route('/refresh_stocks', methods=['POST'] )
 def refresh_stocks():
-    #refresh_quotes()
+    refresh_quotes()
     return 'successfully'
     #return render_template('symbols.html', symbols=all_symbols())
 
