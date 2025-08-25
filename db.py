@@ -456,7 +456,7 @@ def all_symbols():
     cur.close()
 
     new_data = [
-    (number, name, 'used', close_price, last_date_at) if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
+    (number, name, 'used', close_price, last_date_at.strftime("%Y-%m-%d")) if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
      for  number, name, close_price, last_date_at in data
     ]
     return new_data

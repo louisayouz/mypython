@@ -151,7 +151,7 @@
       tooltip.text("");
       tooltip.attr("style", "display:none");
 
-      if (value === "" ) {
+      if (value === "" ){
         $('#symbol_buy_info').attr('style','display:none');
         tooltip.text("Enter Quote symbol.");
         tooltip.attr("style", "display:inline-block");
@@ -162,12 +162,16 @@
           $('#togglePopup #symbolInPortfolio').focus();
           tooltip.text("Symbol already exists in prorfolio. Please click on 'Add' link  on row with same Quote.");
           tooltip.attr("style", "display:inline-block");
-        } else {
+        }
+        else
+        {
               $('#symbol_buy_info').attr('style','display:block');
               console.log("Symbol is valid:", value);
         }
+
       event.preventDefault();
     });
+
   });  //document ready
 </script>
 
