@@ -5,15 +5,31 @@
 {% block content %}
 <script>
   function refreshQuotes(){
+
+    let refresh = $('.refresh');
+    let refreshTxt = refresh.html();
+    refresh.html('wait...refresh started')
+    refresh.removeClass('btn-primary');
+    refresh.addClass("btn-warning").prop("disabled", true);
+
+
     $.ajax({
       url: "/refresh_stocks",
       method: "POST",
       success: function (response) {
         console.log("refrefreshed", response);
         window.location.href = "/symbols";
+
+        refresh.removeClass("btn-warning");
+        refresh.addClass("btn-primary").prop("disabled", false);
+        refresh.html(refreshTxt);
       },
       error: function () {
         console.log("Failed to refresh prices");
+
+        refresh.html(refreshTxt);
+        refresh.removeClass("btn-warning");
+        refresh.addClass("btn-primary").prop("disabled", false);
       }});
   };
 </script>
@@ -58,7 +74,7 @@
         {% endfor %}
       </tbody>
       </table>
-      <button onclick ="refreshQuotes();" class="btn btn-primary w-30 mt-3">Refresh quote prices</button>
+      <button onclick ="refreshQuotes();" class="refresh btn btn-primary w-30 mt-3">Refresh quote prices</button>
     </div>
   </div>
 {% endblock %}
