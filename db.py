@@ -439,8 +439,10 @@ def all_symbols():
     cur = conn.cursor()
 
     stmt = """
-       SELECT Q.id, Q.quote_name, close_price, last_date_at
-        FROM quotes Q
+       SELECT Q.id, Q.quote_name,
+       COALESCE(QP.close_price, 0.0) AS close_price,
+       COALESCE(TO_CHAR(QP.last_date_at, 'YYYY-MM-DD'), '') AS last_date_at
+    FROM quotes Q
         LEFT JOIN LATERAL(
             SELECT QP.*
             FROM  quotes_price QP
@@ -456,8 +458,7 @@ def all_symbols():
     cur.close()
 
     new_data = [
-    (number, name, 'used', close_price if close_price is not None else 0.00,
-     last_date_at.strftime("%Y-%m-%d") if last_date_at is not None else "") if is_symbol_in_any_portfolio(name) else (number, name, 'not_used')
+    (number, name, 'used', close_price, last_date_at) if is_symbol_in_any_portfolio(name) else ( number, name, 'not_used', close_price, last_date_at )
      for  number, name, close_price, last_date_at in data
     ]
     return new_data
