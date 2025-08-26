@@ -45,16 +45,16 @@ def get_stock_info(symbol, for_day):
       'Content-Type': 'application/json'
    }
 
-   #for_day = nearest_weekday()
+
    #requestResponse = requests.get("https://api.tiingo.com/tiingo/daily/{symbol}?token={token}", headers=headers)
    print ( f"https://api.tiingo.com/tiingo/daily/{symbol}/prices?startDate={for_day}&token={token}")
                                    #https://api.tiingo.com/tiingo/daily/aapl/prices
    requestResponse = requests.get(f"https://api.tiingo.com/tiingo/daily/{symbol}/prices?startDate={for_day}&token={token}", headers=headers)
    #print(requestResponse.json())
-   res = requestResponse.json()
-   print(res)
-   if res:
-      return float(res[0]['close'])
+   if requestResponse.status_code ==200:
+      res = requestResponse.json()
+      if res:
+         return float(res[0]['close'])
    else:
       return float(0.0)
   #requestResponse = requests.get("https://api.tiingo.com/tiingo/daily/{symbol}?token={token}", headers=headers)
