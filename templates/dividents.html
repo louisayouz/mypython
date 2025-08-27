@@ -7,7 +7,11 @@
 <script type="text/javascript">
 
   // Function to show and hide the popup
-  function year_info(rowid){ $("." + rowid).toggle();}
+  function year_info(rowid){
+    let safeClassName = rowid.replace(/\./g, "\\.");
+    //$("." + rowid).toggle();
+    $("." + safeClassName).toggle();
+  }
 
   function ChangeDivPrice(id, monthId){
     let newPrice = $('#month_div_'+ monthId).val();
