@@ -41,7 +41,8 @@ def login():
 
         result = False
         if user is None:
-            return "Invalid credentials!"
+           # return "Invalid credentials!"
+            return render_template('login.html', result = "Invalid credentials!")
 
         if user[3] is None:
             result = user[1] == password
@@ -53,8 +54,9 @@ def login():
             session['user_id'] = user[2]
             return redirect(url_for('dashboard'))
         else:
-            return "Invalid credentials!"
-    return render_template('login.html')
+            #return "Invalid credentials!"
+            return render_template('login.html', result = "Invalid credentials!")
+    return render_template('login.html', result = "")
 
 @app.route('/dashboard')
 def dashboard():

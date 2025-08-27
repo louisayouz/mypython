@@ -6,6 +6,15 @@
 {% block content %}
 
   <!-- your portfolio list  here -->
+
+<script type="text/javascript">
+  function allow_portfolio_deletion(e, p_name) {
+    if( !confirm('Do you really want to remove '+ p_name +' portfolio?')){
+      console.log( 'delete portfolio cancelled');
+      e.preventDefault();
+    }
+  }
+</script>
   <div class="container mt-5">
     <div class="d-flex justify-content-center">
       <h2>  Portfolios ({{user_name}})</h2>
@@ -26,7 +35,7 @@
           <td>{{ entry[0]}}</td>
           <td>{{ entry[1] }}</td>
           <td><a href="/quotes/{{ entry[0]}}/{{for_year}}" > To Quotes - {{for_year}} Year</a></td>
-          <td><a href="/delete_portfolio/{{ entry[0]}}" > &nbsp; Delete </a></td>
+          <td><a href="/delete_portfolio/{{ entry[0]}}"  onclick="allow_portfolio_deletion(event, '{{ entry[1] }}')"> &nbsp; Delete </a></td>
 
         </tr>
       {% endfor %}

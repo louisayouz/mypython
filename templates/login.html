@@ -3,7 +3,13 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
+ <script type="text/javascript">
+    let loginErrorClear = function (){
+      $('#login_error').html('');
+    }
+    setTimeout(loginErrorClear, 10000);
 
+  </script>
   <!-- your login form here -->
   <div class="card p-5">
     <div class="d-flex justify-content-center">
@@ -22,6 +28,7 @@
         <input type="password" class="form-control" id="password" name="password" required placeholder="Enter password">
       </div>
     </br>
+      <div id="login_error"><b>{{result}}</b></div></br>
       <button type="submit" class="btn btn-primary w-25 mt-3">Log In</button>
     </form>
 
