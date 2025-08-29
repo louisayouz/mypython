@@ -484,8 +484,6 @@ def refresh_quotes():
     return all_symbols()
 
 def update_quote_prices(data, for_day):
-
-    #data=[{'NAV': 0.0}, {'BAC': 49.48}, {'XYLD': 38.87}, {'QYLD': 16.65}, {'GOF': 14.85}, {'IAF': 4.64}, {'AZN': 80.97}, {'APLE': 12.87}, {'AAPL': 227.76}, {'QQQ': 571.97}, {'BGY': 5.78}]
     print(data)
 
     values = ", ".join(
@@ -496,7 +494,6 @@ def update_quote_prices(data, for_day):
         for row in data
     )
 
-    print(values)
     conn = get_db_connection()
     cur = conn.cursor()
     stmt = f"""

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, redirect,session,jso
 from db import get_user_by_username, portfolio_data, create_portfolio, delete_portfolio, portfolio_quotes
 from db import add_quote, delete_protfolio_quote, edit_quote, all_dividents, add_div, delete_div, div_for_quote_and_year
 from db import all_symbols, add_full_year_div, edit_div, delete_symbol
-from db import close_db, refresh_quotes
+from db import close_db, refresh_quotes, update_quote_prices
 from helpers.utils import validate_int, validate_string, validate_numeric, symbols_as_array
 from import_div import import_quote
 from datetime import datetime, timedelta
@@ -227,6 +227,19 @@ def deletesymbol(symbol):
 @app.route('/refresh_stocks', methods=['POST'] )
 def refresh_stocks():
     refresh_quotes()
+    return 'successfully'
+
+@app.route('/editquotecloseprice/<string:symbol>/<string:close_price_date>/<string:price>', methods=['POST'] )
+def editquotecloseprice(symbol, close_price_date, price ):
+    symbol = validate_string(symbol)
+    close_date = validate_string(close_price_date)
+    price = validate_numeric(price)
+
+    if price == 0 or close_date=='' or symbol=='':
+        return 'failed'
+
+    print(f"{symbol} {close_price_date} {price}")
+    update_quote_prices([[symbol, price]], close_price_date)
     return 'successfully'
 
 if __name__ == '__main__':
