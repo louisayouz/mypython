@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, url_for, redirect,session,jsonify
-from db import get_user_by_username, portfolio_data, create_portfolio, delete_portfolio, portfolio_quotes
-from db import add_quote, delete_protfolio_quote, edit_quote, all_dividents, add_div, delete_div, div_for_quote_and_year
-from db import all_symbols, add_full_year_div, edit_div, delete_symbol
-from db import close_db, refresh_quotes, update_quote_prices
+
+from helpers.db import get_user_by_username, portfolio_data, create_portfolio, delete_portfolio, portfolio_quotes
+from helpers.db import add_quote, delete_protfolio_quote, edit_quote, all_dividents, add_div, delete_div, div_for_quote_and_year
+from helpers.db import all_symbols, add_full_year_div, edit_div, delete_symbol
+from helpers.db import close_db, refresh_quotes, update_quote_prices
+
 from helpers.utils import validate_int, validate_string, validate_numeric, symbols_as_array
 from import_div import import_quote
 from datetime import datetime, timedelta
@@ -204,7 +206,6 @@ def deletediv(quote_symbol, divid):
 
 @app.route('/importquotedividents/<string:quote_symbol>', methods=['GET'])
 def importquotedividents(quote_symbol):
-
     import_quote(quote_symbol, '2025-01-01', '2025-05-01')
     return redirect(url_for('quotedividents', quote_symbol=quote_symbol))
 
