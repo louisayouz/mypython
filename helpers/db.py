@@ -13,6 +13,7 @@ from flask import g
 def get_db_connection():
     if 'db' not in g:
         db_url = os.environ.get("DATABASE_URL")
+		print( db_url)
         g.db = psycopg2.connect(db_url)
 
     return g.db
