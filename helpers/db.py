@@ -7,15 +7,41 @@ from collections import defaultdict
 from decimal import Decimal
 from datetime import datetime
 import json
+import socket
 
 from flask import g
 
-def get_db_connection():
+def get_db_connection_1():
     if 'db' not in g:
         db_url = os.environ.get("DATABASE_URL")
         print( db_url)
         g.db = psycopg2.connect(db_url)
 
+    return g.db
+
+def get_db_connection():
+    if 'db' not in g:
+        db_url = os.environ.get("DATABASE_URL")
+
+        # Extract host and replace with IPv4 if needed
+        try:
+            from urllib.parse import urlparse
+
+            parsed = urlparse(db_url)
+            host = parsed.hostname
+            port = parsed.port
+
+            # Try resolving IPv4 only
+            ipv4_addresses = socket.getaddrinfo(host, port, family=socket.AF_INET, proto=socket.IPPROTO_TCP)
+            if ipv4_addresses:
+                ipv4 = ipv4_addresses[0][4][0]
+                # Rebuild connection string with IPv4
+                db_url = db_url.replace(host, ipv4)
+                print(f"✅ Using IPv4 {ipv4} instead of {host}")
+        except Exception as e:
+            print(f"⚠️ Could not force IPv4: {e}")
+
+        g.db = psycopg2.connect(db_url)
     return g.db
 
 def close_db(e=None):

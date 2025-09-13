@@ -243,5 +243,34 @@ def editquotecloseprice(symbol, close_price_date, price ):
     update_quote_prices([[symbol, price]], close_price_date)
     return 'successfully'
 
+@app.route("/test_dns")
+def test_dns_route():
+    print('test_dns_route')
+    import socket
+    host = "db.nkqwafkbvdiqnesnrsxk.supabase.co"
+    # try:
+    #     ipv4 = socket.gethostbyname(host)
+    #     return f"✅ Resolved {host} → {ipv4}"
+    # except Exception as e:
+    #     return f"❌ DNS resolution failed: {e}"
+
+    try:
+        ipv4 = socket.gethostbyname(host)
+        print(f"socket.gethostbyname → {ipv4}")
+    except Exception as e:
+        print(f"socket.gethostbyname failed: {e}")
+
+    try:
+        infos = socket.getaddrinfo(host, 5432, proto=socket.IPPROTO_TCP)
+        #print (infos)
+        for info in infos:
+            print("socket.getaddrinfo →", info[4][0])
+
+        return f"aaa"
+        #return f"{info[4][0]}"
+    except Exception as e:
+        return(f"socket.getaddrinfo failed: {e}")
+
+
 if __name__ == '__main__':
     app.run(debug=True)
